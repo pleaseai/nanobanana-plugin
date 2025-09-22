@@ -38,7 +38,7 @@ Install the extension using the `gemini extensions install` command:
 
 ```bash
 # Install from the GitHub URL
-gemini extensions install --source https://github.com/bdmorgan/nanobanana-extension.git
+gemini extensions install --source https://github.com/gemini-cli-extensions/nanobanana/nanobanana-extension.git
 ```
 
 Then make sure the extenion MCP server is built:
