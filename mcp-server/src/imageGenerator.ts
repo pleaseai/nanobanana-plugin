@@ -98,13 +98,13 @@ export class ImageGenerator {
     const nanoGeminiKey = process.env.NANOBANANA_GEMINI_API_KEY;
     if (nanoGeminiKey) {
       console.error('✓ Found NANOBANANA_GEMINI_API_KEY environment variable');
-      return { apiKey: nanoGeminiKey, keyType: 'NANOBANANA_GEMINI_API_KEY' };
+      return { apiKey: nanoGeminiKey, keyType: 'GEMINI_API_KEY' };
     }
 
     const nanoGoogleKey = process.env.NANOBANANA_GOOGLE_API_KEY;
     if (nanoGoogleKey) {
       console.error('✓ Found NANOBANANA_GOOGLE_API_KEY environment variable');
-      return { apiKey: nanoGoogleKey, keyType: 'NANOBANANA_GOOGLE_API_KEY' };
+      return { apiKey: nanoGoogleKey, keyType: 'GOOGLE_API_KEY' };
     }
 
     const geminiKey = process.env.GEMINI_API_KEY;
