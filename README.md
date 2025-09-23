@@ -41,25 +41,6 @@ Install the extension using the `gemini extensions install` command:
 gemini extensions install https://github.com/gemini-cli-extensions/nanobanana
 ```
 
-Then make sure the extension MCP server is built:
-
-```bash
-# Install dependencies and build the MCP server
-cd ~/.gemini/extensions/nanobanana/
-npm run install-deps
-npm run build
-```
-
-or
-
-```bash
-# Make sure local copy is built before installing
-npm run install-deps
-npm run build
-# Install from a local file location
-gemini extensions install /path/to/nanobanana
-```
-
 ### 2. Activate
 
 Restart the Gemini CLI. The following commands will be available:
