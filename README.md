@@ -12,7 +12,7 @@ A professional Gemini CLI extension for generating and manipulating images using
 ## 📋 Prerequisites
 
 1. **Gemini CLI** installed and configured
-2. **Node.js 18+** and npm
+2. **Node.js 20+** and npm
 3. **API Key**: Set one of these environment variables:
    - `NANOBANANA_GEMINI_API_KEY` (recommended for Gemini API key users who
      normally authenticate to Gemini CLI using the "Login with Google" option)
@@ -38,10 +38,10 @@ Install the extension using the `gemini extensions install` command:
 
 ```bash
 # Install from the GitHub URL
-gemini extensions install --source https://github.com/gemini-cli-extensions/nanobanana/nanobanana-extension.git
+gemini extensions install https://github.com/gemini-cli-extensions/nanobanana
 ```
 
-Then make sure the extenion MCP server is built:
+Then make sure the extension MCP server is built:
 
 ```bash
 # Install dependencies and build the MCP server
