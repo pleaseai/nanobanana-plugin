@@ -1,0 +1,64 @@
+# This is a GitHub Actions workflow to automate building and releasing your extension.
+# It will trigger automatically whenever you push a new tag that starts with 'v' (e.g., v1.0.0).
+
+name: Create Release
+
+on:
+  # This allows the workflow to be triggered when a new tag is pushed
+  push:
+    tags:
+      - 'v*' # Triggers on tags like v1.0, v1.0.1, etc.
+  
+  # This allows you to run the workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  # This permission is required for the action to create a GitHub Release
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checks out your repository's code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Sets up the Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Specify the Node.js version you use
+          cache: 'npm'
+
+      # 3. Installs dependencies
+      # We use 'npm ci' which is faster and safer for CI/CD environments
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Runs your build script
+      # This assumes 'npm run build' creates a 'dist' or 'build' folder.
+      # If your build output is different, change the 'zip' command below.
+      - name: Run build
+        run: npm run build
+
+      # 5. Zip the build artifacts
+      # This zips the package.json and the built code into a file.
+      # Users will download this file.
+      - name: Zip build artifacts
+        run: zip -r nanobanana-release.zip . -x ".git/*" ".github/*" "node_modules/*"
+        
+      # 6. Creates the GitHub Release
+      # This step uses the 'gh' CLI (pre-installed on the runner) to:
+      #   - Create a new release based on the tag you pushed.
+      #   - Automatically generate release notes from your commits.
+      #   - Upload the 'nanobanana-release.zip' file as a release asset.
+      - name: Create GitHub Release and Upload Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ github.ref_name }} \
+             --generate-notes \
+             --title "Release ${{ github.ref_name }}" \
+             --notes "See the changelog for details." \
+             nanobanana-release.zip
