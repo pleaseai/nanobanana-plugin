@@ -45,14 +45,14 @@ jobs:
       # 5. Zip the build artifacts
       # This zips the package.json and the built code into a file.
       # Users will download this file.
-      - name: Zip build artifacts
-        run: zip -r nanobanana-release.zip . -x ".git/*" ".github/*" "node_modules/*"
+      - name: Create TAR archive
+        run: tar -cvzf nanobanana-release.tar.gz --exclude=".git" --exclude=".github" --exclude="node_modules" .
         
       # 6. Creates the GitHub Release
       # This step uses the 'gh' CLI (pre-installed on the runner) to:
       #   - Create a new release based on the tag you pushed.
       #   - Automatically generate release notes from your commits.
-      #   - Upload the 'nanobanana-release.zip' file as a release asset.
+      #   - Upload the 'nanobanana-release.tar.gz' file as a release asset.
       - name: Create GitHub Release and Upload Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -61,4 +61,4 @@ jobs:
              --generate-notes \
              --title "Release ${{ github.ref_name }}" \
              --notes "See the changelog for details." \
-             nanobanana-release.zip
+             nanobanana-release.tar.gz
