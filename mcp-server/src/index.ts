@@ -22,7 +22,8 @@ import {
 
 class NanoBananaServer {
   private server: Server;
-  private imageGenerator: ImageGenerator;
+  private imageGenerator!: ImageGenerator;
+  private initializationError: Error | null = null;
 
   constructor() {
     this.server = new Server(
@@ -44,8 +45,8 @@ class NanoBananaServer {
       const authConfig = ImageGenerator.validateAuthentication();
       this.imageGenerator = new ImageGenerator(authConfig);
     } catch (error: unknown) {
-      console.error(error instanceof Error ? error.message : String(error));
-      process.exit(1);
+      this.initializationError =
+        error instanceof Error ? error : new Error(String(error));
     }
   }
 
@@ -400,6 +401,10 @@ class NanoBananaServer {
     });
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      if (this.initializationError) {
+        throw this.initializationError;
+      }
+
       const { name, arguments: args } = request.params;
 
       try {
@@ -526,7 +531,7 @@ class NanoBananaServer {
             content: [
               {
                 type: 'text',
-                text: `${response.message}\\n\\nGenerated files:\\n${response.generatedFiles?.map((f) => `• ${f}`).join('\\n') || 'None'}`,
+                text: `${response.message}\n\nGenerated files:\n${response.generatedFiles?.map((f) => `• ${f}`).join('\n') || 'None'}`, 
               },
             ],
           };
@@ -535,7 +540,10 @@ class NanoBananaServer {
         }
       } catch (error: unknown) {
         console.error(`Error executing tool ${name}:`, error);
-        throw error;
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error(`An unexpected error occurred: ${String(error)}`);
       }
     });
   }

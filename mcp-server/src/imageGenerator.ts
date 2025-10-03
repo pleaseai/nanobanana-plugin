@@ -240,6 +240,7 @@ export class ImageGenerator {
       const outputPath = FileHandler.ensureOutputDirectory();
       const generatedFiles: string[] = [];
       const prompts = this.buildBatchPrompts(request);
+      let firstError: string | null = null;
 
       console.error(`DEBUG - Generating ${prompts.length} image variation(s)`);
 
@@ -302,11 +303,23 @@ export class ImageGenerator {
             }
           }
         } catch (error: unknown) {
+          const errorMessage = this.handleApiError(error);
+          if (!firstError) {
+            firstError = errorMessage;
+          }
           console.error(
             `DEBUG - Error generating variation ${i + 1}:`,
-            error instanceof Error ? error.message : String(error),
+            errorMessage,
           );
-          // Continue with other variations even if one fails
+
+          // If auth-related, stop immediately
+          if (errorMessage.toLowerCase().includes('authentication failed')) {
+            return {
+              success: false,
+              message: 'Image generation failed',
+              error: errorMessage,
+            };
+          }
         }
       }
 
@@ -314,7 +327,7 @@ export class ImageGenerator {
         return {
           success: false,
           message: 'Failed to generate any images',
-          error: 'No image data found in API responses',
+          error: firstError || 'No image data found in API responses',
         };
       }
 
@@ -331,143 +344,198 @@ export class ImageGenerator {
       return {
         success: false,
         message: 'Failed to generate image',
-        error: error instanceof Error ? error.message : String(error),
+        error: this.handleApiError(error),
       };
     }
   }
 
-  async generateStorySequence(
-    request: ImageGenerationRequest,
-    args?: StorySequenceArgs,
-  ): Promise<ImageGenerationResponse> {
-    try {
-      const outputPath = FileHandler.ensureOutputDirectory();
-      const generatedFiles: string[] = [];
-      const steps = request.outputCount || 4;
-      const type = args?.type || 'story';
-      const style = args?.style || 'consistent';
-      const transition = args?.transition || 'smooth';
+  private handleApiError(error: unknown): string {
+    // Ideal: Check for a specific error code or type from the SDK
+    // Fallback: Check for revealing strings in the error message
+    const errorMessage =
+      error instanceof Error ? error.message : String(error).toLowerCase();
 
-      console.error(`DEBUG - Generating ${steps}-step ${type} sequence`);
+    if (errorMessage.includes('api key not valid')) {
+      return 'Authentication failed: The provided API key is invalid. Please check your NANOBANANA_GEMINI_API_KEY environment variable.';
+    }
 
-      // Generate each step of the story/process
-      for (let i = 0; i < steps; i++) {
-        const stepNumber = i + 1;
-        let stepPrompt = `${request.prompt}, step ${stepNumber} of ${steps}`;
+    if (errorMessage.includes('permission denied')) {
+      return 'Authentication failed: The provided API key does not have the necessary permissions for the Gemini API. Please check your Google Cloud project settings.';
+    }
 
-        // Add context based on type
-        switch (type) {
-          case 'story':
-            stepPrompt += `, narrative sequence, ${style} art style`;
-            break;
-          case 'process':
-            stepPrompt += `, procedural step, instructional illustration`;
-            break;
-          case 'tutorial':
-            stepPrompt += `, tutorial step, educational diagram`;
-            break;
-          case 'timeline':
-            stepPrompt += `, chronological progression, timeline visualization`;
-            break;
-        }
+    if (errorMessage.includes('quota exceeded')) {
+      return 'API quota exceeded. Please check your usage and limits in the Google Cloud console.';
+    }
 
-        // Add transition context
-        if (i > 0) {
-          stepPrompt += `, ${transition} transition from previous step`;
-        }
+    // Check for GoogleGenerativeAIResponseError
+    if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      error.response
+    ) {
+      const responseError = error as {
+        response: { status: number; statusText: string };
+      };
+      const { status } = responseError.response;
 
-        console.error(`DEBUG - Generating step ${stepNumber}: ${stepPrompt}`);
+      switch (status) {
+        case 400:
+          return 'The request was malformed. This may be due to an issue with the prompt. Please check for safety violations or unsupported content.';
+        case 403: // General permission error if specific message not caught
+          return 'Authentication failed. Please ensure your API key (e.g., NANOBANANA_GEMINI_API_KEY) is valid and has the necessary permissions.';
+        case 500:
+          return 'The image generation service encountered a temporary internal error. Please try again later.';
+        default:
+          return `API request failed with status ${status}. Please check your connection and API key.`;
+      }
+    }
 
-        try {
-          const response = await this.ai.models.generateContent({
-            model: ImageGenerator.MODEL_NAME,
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: stepPrompt }],
-              },
-            ],
-          });
+    // Fallback for other error types
+    return `An unexpected error occurred: ${errorMessage}`;
+  }
 
-          if (response.candidates && response.candidates[0]?.content?.parts) {
-            for (const part of response.candidates[0].content.parts) {
-              let imageBase64: string | undefined;
-
-              if (part.inlineData?.data) {
-                imageBase64 = part.inlineData.data;
-              } else if (part.text && this.isValidBase64ImageData(part.text)) {
-                imageBase64 = part.text;
-              }
-
-              if (imageBase64) {
-                const filename = FileHandler.generateFilename(
-                  `${type}step${stepNumber}${request.prompt}`,
-                  'png', // Stories default to png
-                  0,
-                );
-                const fullPath = await FileHandler.saveImageFromBase64(
-                  imageBase64,
-                  outputPath,
-                  filename,
-                );
-                generatedFiles.push(fullPath);
-                console.error(`DEBUG - Step ${stepNumber} saved to:`, fullPath);
-                break;
+    async generateStorySequence(
+      request: ImageGenerationRequest,
+      args?: StorySequenceArgs,
+    ): Promise<ImageGenerationResponse> {
+      try {
+        const outputPath = FileHandler.ensureOutputDirectory();
+        const generatedFiles: string[] = [];
+        const steps = request.outputCount || 4;
+        const type = args?.type || 'story';
+        const style = args?.style || 'consistent';
+        const transition = args?.transition || 'smooth';
+        let firstError: string | null = null;
+  
+        console.error(`DEBUG - Generating ${steps}-step ${type} sequence`);
+  
+        // Generate each step of the story/process
+        for (let i = 0; i < steps; i++) {
+          const stepNumber = i + 1;
+          let stepPrompt = `${request.prompt}, step ${stepNumber} of ${steps}`;
+  
+          // Add context based on type
+          switch (type) {
+            case 'story':
+              stepPrompt += `, narrative sequence, ${style} art style`;
+              break;
+            case 'process':
+              stepPrompt += `, procedural step, instructional illustration`;
+              break;
+            case 'tutorial':
+              stepPrompt += `, tutorial step, educational diagram`;
+              break;
+            case 'timeline':
+              stepPrompt += `, chronological progression, timeline visualization`;
+              break;
+          }
+  
+          // Add transition context
+          if (i > 0) {
+            stepPrompt += `, ${transition} transition from previous step`;
+          }
+  
+          console.error(`DEBUG - Generating step ${stepNumber}: ${stepPrompt}`);
+  
+          try {
+            const response = await this.ai.models.generateContent({
+              model: ImageGenerator.MODEL_NAME,
+              contents: [
+                {
+                  role: 'user',
+                  parts: [{ text: stepPrompt }],
+                },
+              ],
+            });
+  
+            if (response.candidates && response.candidates[0]?.content?.parts) {
+              for (const part of response.candidates[0].content.parts) {
+                let imageBase64: string | undefined;
+  
+                if (part.inlineData?.data) {
+                  imageBase64 = part.inlineData.data;
+                } else if (part.text && this.isValidBase64ImageData(part.text)) {
+                  imageBase64 = part.text;
+                }
+  
+                if (imageBase64) {
+                  const filename = FileHandler.generateFilename(
+                    `${type}step${stepNumber}${request.prompt}`,
+                    'png', // Stories default to png
+                    0,
+                  );
+                  const fullPath = await FileHandler.saveImageFromBase64(
+                    imageBase64,
+                    outputPath,
+                    filename,
+                  );
+                  generatedFiles.push(fullPath);
+                  console.error(`DEBUG - Step ${stepNumber} saved to:`, fullPath);
+                  break;
+                }
               }
             }
+          } catch (error: unknown) {
+            const errorMessage = this.handleApiError(error);
+            if (!firstError) {
+              firstError = errorMessage;
+            }
+            console.error(
+              `DEBUG - Error generating step ${stepNumber}:`,
+              errorMessage,
+            );
+            if (errorMessage.toLowerCase().includes('authentication failed')) {
+              return {
+                success: false,
+                message: 'Story generation failed',
+                error: errorMessage,
+              };
+            }
           }
-        } catch (error: unknown) {
-          console.error(
-            `DEBUG - Error generating step ${stepNumber}:`,
-            error instanceof Error ? error.message : String(error),
-          );
-          console.error(`DEBUG - Full error details:`, error);
-          // Continue with other steps even if one fails
+  
+          // Check if this step was actually generated
+          if (generatedFiles.length < stepNumber) {
+            console.error(
+              `DEBUG - WARNING: Step ${stepNumber} failed to generate - no valid image data received`,
+            );
+          }
         }
-
-        // Check if this step was actually generated
-        if (generatedFiles.length < stepNumber) {
-          console.error(
-            `DEBUG - WARNING: Step ${stepNumber} failed to generate - no valid image data received`,
-          );
+  
+        console.error(
+          `DEBUG - Story generation completed. Generated ${generatedFiles.length} out of ${steps} requested images`,
+        );
+  
+        if (generatedFiles.length === 0) {
+          return {
+            success: false,
+            message: 'Failed to generate any story sequence images',
+            error: firstError || 'No image data found in API responses',
+          };
         }
-      }
-
-      console.error(
-        `DEBUG - Story generation completed. Generated ${generatedFiles.length} out of ${steps} requested images`,
-      );
-
-      if (generatedFiles.length === 0) {
+  
+        // Handle preview if requested
+        await this.handlePreview(generatedFiles, request);
+  
+        const wasFullySuccessful = generatedFiles.length === steps;
+        const successMessage = wasFullySuccessful
+          ? `Successfully generated complete ${steps}-step ${type} sequence`
+          : `Generated ${generatedFiles.length} out of ${steps} requested ${type} steps (${steps - generatedFiles.length} steps failed)`;
+  
+        return {
+          success: true,
+          message: successMessage,
+          generatedFiles,
+        };
+      } catch (error: unknown) {
+        console.error('DEBUG - Error in generateStorySequence:', error);
         return {
           success: false,
-          message: 'Failed to generate any story sequence images',
-          error: 'No image data found in API responses',
+          message: `Failed to generate ${request.mode} sequence`,
+          error: this.handleApiError(error),
         };
       }
-
-      // Handle preview if requested
-      await this.handlePreview(generatedFiles, request);
-
-      const wasFullySuccessful = generatedFiles.length === steps;
-      const successMessage = wasFullySuccessful
-        ? `Successfully generated complete ${steps}-step ${type} sequence`
-        : `Generated ${generatedFiles.length} out of ${steps} requested ${type} steps (${steps - generatedFiles.length} steps failed)`;
-
-      return {
-        success: true,
-        message: successMessage,
-        generatedFiles,
-      };
-    } catch (error: unknown) {
-      console.error('DEBUG - Error in generateStorySequence:', error);
-      return {
-        success: false,
-        message: `Failed to generate ${request.mode} sequence`,
-        error: error instanceof Error ? error.message : String(error),
-      };
     }
-  }
-
   async editImage(
     request: ImageGenerationRequest,
   ): Promise<ImageGenerationResponse> {
@@ -548,7 +616,7 @@ export class ImageGenerator {
               outputPath,
               filename,
             );
-            generatedFiles.push(fullPath);
+generatedFiles.push(fullPath);
             console.error('DEBUG - Edited image saved to:', fullPath);
             imageFound = true;
             break; // Only process the first valid image
@@ -581,7 +649,7 @@ export class ImageGenerator {
       return {
         success: false,
         message: `Failed to ${request.mode} image`,
-        error: error instanceof Error ? error.message : String(error),
+        error: this.handleApiError(error),
       };
     }
   }
