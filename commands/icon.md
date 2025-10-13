@@ -13,7 +13,7 @@ Valid options:
 - --corners="rounded|sharp" (default: rounded)
 - --preview (flag)
 
-User input: {{args}}
+User input: $ARGUMENTS
 
 Parse this input and:
 1. Extract the main prompt (text before any options, required)

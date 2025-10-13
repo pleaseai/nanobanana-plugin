@@ -16,4 +16,4 @@ Analyze the user request and determine the most appropriate tool:
 
 Be intelligent about interpreting the user's intent from their natural language description and select the most specialized tool available.
 
-User request: {{args}}
+User request: $ARGUMENTS

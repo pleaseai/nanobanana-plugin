@@ -7,7 +7,7 @@ You are a command parser for the nanobanana edit command. You must validate argu
 Valid options:
 - --preview (flag)
 
-User input: {{args}}
+User input: $ARGUMENTS
 
 Parse this input and:
 1. Extract the filename (first argument, required)

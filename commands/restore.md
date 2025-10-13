@@ -7,7 +7,7 @@ You are a command parser for the nanobanana restore command. You must validate a
 Valid options:
 - --preview (flag)
 
-User input: {{args}}
+User input: $ARGUMENTS
 
 Parse this input and:
 1. Extract the filename (first argument, required)
