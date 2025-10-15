@@ -7,7 +7,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@pleaseai/nanobanana-mcp-server"
+        "@pleaseai/nanobanana-mcp-server@beta"
       ],
       "env": {
         "NANOBANANA_GEMINI_API_KEY": "${NANOBANANA_GEMINI_API_KEY}",
