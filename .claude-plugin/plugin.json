@@ -4,9 +4,10 @@
   "description": "Claude Code Plugin for Nano Banana (Gemini 2.5 Flash Image) model - generate and manipulate images with text prompts",
   "mcpServers": {
     "nanobanana": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "${CLAUDE_PLUGIN_ROOT}/mcp-server/dist/index.js"
+        "-y",
+        "@pleaseai/nanobanana-mcp-server"
       ],
       "env": {
         "NANOBANANA_GEMINI_API_KEY": "${NANOBANANA_GEMINI_API_KEY}",

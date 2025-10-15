@@ -1,16 +1,44 @@
 {
-  "name": "nanobanana-mcp-server",
+  "name": "@pleaseai/nanobanana-mcp-server",
   "version": "1.0.0",
   "type": "module",
   "description": "MCP server for Nano Banana (Gemini 2.5 Flash Image) extension",
   "main": "dist/index.js",
+  "bin": {
+    "nanobanana-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
     "prepare": "npm run build",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "gemini",
+    "image-generation",
+    "nano-banana",
+    "claude-code"
+  ],
+  "author": "Please AI",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pleaseai/nanobanana.git",
+    "directory": "mcp-server"
+  },
+  "homepage": "https://github.com/pleaseai/nanobanana#readme",
+  "bugs": {
+    "url": "https://github.com/pleaseai/nanobanana/issues"
   },
   "dependencies": {
     "@google/genai": "^1.17.0",

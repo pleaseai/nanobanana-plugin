@@ -1,5 +1,5 @@
 {
-  "name": "nanobanana-extension",
+  "name": "@pleaseai/nanobanana-plugin",
   "version": "1.0.0",
   "type": "module",
   "description": "Gemini CLI extension for Nano Banana (Gemini 2.5 Flash Image) model",

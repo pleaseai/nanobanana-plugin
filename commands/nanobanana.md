@@ -2,7 +2,7 @@
 description: Generate and manipulate images with Nano Banana using natural language prompts.
 ---
 
-Please use the nanobanana MCP server tools to help with image generation and manipulation tasks based on the user's natural language request.
+Please use the plugin:nanobanana:nanobanana MCP server tools to help with image generation and manipulation tasks based on the user's natural language request.
 
 Analyze the user request and determine the most appropriate tool:
 
