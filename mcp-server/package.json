@@ -1,6 +1,6 @@
 {
   "name": "@pleaseai/nanobanana-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "description": "MCP server for Nano Banana (Gemini 2.5 Flash Image) extension",
   "main": "dist/index.js",
@@ -33,12 +33,12 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pleaseai/nanobanana.git",
+    "url": "git+https://github.com/pleaseai/nanobanana-plugin.git",
     "directory": "mcp-server"
   },
-  "homepage": "https://github.com/pleaseai/nanobanana#readme",
+  "homepage": "https://github.com/pleaseai/nanobanana-plugin#readme",
   "bugs": {
-    "url": "https://github.com/pleaseai/nanobanana/issues"
+    "url": "https://github.com/pleaseai/nanobanana-plugin/issues"
   },
   "dependencies": {
     "@google/genai": "^1.17.0",

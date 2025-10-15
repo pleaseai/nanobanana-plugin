@@ -8,13 +8,7 @@
       "args": [
         "-y",
         "@pleaseai/nanobanana-mcp-server@beta"
-      ],
-      "env": {
-        "NANOBANANA_GEMINI_API_KEY": "${NANOBANANA_GEMINI_API_KEY}",
-        "NANOBANANA_GOOGLE_API_KEY": "${NANOBANANA_GOOGLE_API_KEY}",
-        "GEMINI_API_KEY": "${GEMINI_API_KEY}",
-        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}"
-      }
+      ]
     }
   }
 }
