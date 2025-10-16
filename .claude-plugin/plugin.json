@@ -6,7 +6,6 @@
     "name": "Google",
     "url": "https://github.com/gemini-cli-extensions"
   },
-  "contextFileName": "GEMINI.md",
   "mcpServers": {
     "nanobanana": {
       "command": "npx",
@@ -15,19 +14,5 @@
         "@pleaseai/nanobanana-mcp-server@beta"
       ]
     }
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/context.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
   }
 }
