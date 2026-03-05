@@ -40,6 +40,12 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Setup Node.js
+        if: steps.version.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Sync files from upstream
         if: steps.version.outputs.changed == 'true'
         run: |
@@ -54,6 +60,10 @@ jobs:
           UPSTREAM_VER=${{ steps.version.outputs.upstream }}
           jq --arg v "$UPSTREAM_VER" '.version = $v' mcp-server/package.json > /tmp/pkg.json
           mv /tmp/pkg.json mcp-server/package.json
+
+      - name: Convert commands TOML → Markdown
+        if: steps.version.outputs.changed == 'true'
+        run: node scripts/convert-commands.mjs
 
       - name: Create Pull Request
         if: steps.version.outputs.changed == 'true'
