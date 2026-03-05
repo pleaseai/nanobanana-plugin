@@ -1,0 +1,31 @@
+# Automatically creates a version tag when a sync PR is merged.
+# Triggers release.yaml which builds and publishes to npm.
+#
+# Flow:
+#   sync/upstream-v1.0.12 PR merged → tag v1.0.12 → release.yaml → npm publish
+
+name: Auto Tag on Sync PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'sync/upstream-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create and push tag
+        run: |
+          VERSION=$(echo "${{ github.event.pull_request.head.ref }}" | sed 's|sync/upstream-v||')
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
