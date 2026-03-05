@@ -1,14 +1,11 @@
 #!/usr/bin/env node
 /**
- * Converts commands/*.toml → claude-commands/*.md
+ * Converts commands/*.toml → commands/*.md (in-place, removes .toml files)
  * Run: node scripts/convert-commands.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
+import { readFileSync, writeFileSync, unlinkSync, readdirSync } from 'fs'
 
 const commandsDir = 'commands'
-const outputDir = 'claude-commands'
-
-mkdirSync(outputDir, { recursive: true })
 
 for (const file of readdirSync(commandsDir).filter(f => f.endsWith('.toml'))) {
   const content = readFileSync(`${commandsDir}/${file}`, 'utf-8')
@@ -17,6 +14,7 @@ for (const file of readdirSync(commandsDir).filter(f => f.endsWith('.toml'))) {
   const promptMatch = content.match(/prompt\s*=\s*"""\s*([\s\S]*?)"""/)
   const prompt = promptMatch?.[1]?.trim() ?? ''
 
-  writeFileSync(`${outputDir}/${name}.md`, prompt + '\n')
+  writeFileSync(`${commandsDir}/${name}.md`, prompt + '\n')
+  unlinkSync(`${commandsDir}/${file}`)
   console.log(`  ${name}.toml → ${name}.md`)
 }
