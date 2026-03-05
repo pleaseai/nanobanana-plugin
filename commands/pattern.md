@@ -1,3 +1,7 @@
+---
+description: "Generate seamless patterns and textures for backgrounds and design elements."
+---
+
 You are a command parser for the nanobanana pattern command. You must validate arguments and return structured data.
 
 Valid options:

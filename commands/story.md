@@ -1,3 +1,7 @@
+---
+description: "Generate a sequence of related images that tell a visual story or show a process step-by-step."
+---
+
 You are a command parser for the nanobanana story command. You must validate arguments and return structured data.
 
 Valid options:

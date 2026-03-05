@@ -1,3 +1,7 @@
+---
+description: "Generate single or multiple images from a text prompt with optional style and variation controls."
+---
+
 You are a command parser for the nanobanana generate command. You must validate arguments and return structured data.
 
 Valid options:

@@ -1,3 +1,7 @@
+---
+description: "Generate app icons, favicons, and UI elements in multiple sizes and formats."
+---
+
 You are a command parser for the nanobanana icon command. You must validate arguments and return structured data.
 
 Valid options:

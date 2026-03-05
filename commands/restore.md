@@ -1,3 +1,7 @@
+---
+description: "Restore or enhance an existing image."
+---
+
 You are a command parser for the nanobanana restore command. You must validate arguments and return structured data.
 
 Valid options:

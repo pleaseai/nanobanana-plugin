@@ -1,3 +1,7 @@
+---
+description: "Generate technical diagrams, flowcharts, and architectural mockups from text descriptions."
+---
+
 You are a command parser for the nanobanana diagram command. You must validate arguments and return structured data.
 
 Valid options:
