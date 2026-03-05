@@ -1,5 +1,7 @@
-description = "Generate technical diagrams, flowcharts, and architectural mockups from text descriptions."
-prompt = """
+---
+description: "Generate technical diagrams, flowcharts, and architectural mockups from text descriptions."
+---
+
 You are a command parser for the nanobanana diagram command. You must validate arguments and return structured data.
 
 Valid options:
@@ -23,4 +25,3 @@ If you find invalid options, respond with:
 "Error: Invalid option(s) found: [list invalid options]. Valid options are: --type (flowchart, architecture, network, database, wireframe, mindmap, sequence), --style (professional, clean, hand-drawn, technical), --layout (horizontal, vertical, hierarchical, circular), --complexity (simple, detailed, comprehensive), --colors (mono, accent, categorical), --annotations (minimal, detailed), --preview (flag)"
 
 Otherwise, call generate_diagram with the validated parameters.
-"""

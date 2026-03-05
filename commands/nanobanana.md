@@ -1,5 +1,7 @@
-description = "Generate and manipulate images with Nano Banana using natural language prompts."
-prompt = """
+---
+description: "Generate and manipulate images with Nano Banana using natural language prompts."
+---
+
 Please use the nanobanana MCP server tools to help with image generation and manipulation tasks based on the user's natural language request.
 
 Analyze the user request and determine the most appropriate tool:
@@ -15,4 +17,3 @@ Analyze the user request and determine the most appropriate tool:
 Be intelligent about interpreting the user's intent from their natural language description and select the most specialized tool available.
 
 User request: {{args}}
-"""

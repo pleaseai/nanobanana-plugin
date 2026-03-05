@@ -1,5 +1,7 @@
-description = "Generate a sequence of related images that tell a visual story or show a process step-by-step."
-prompt = """
+---
+description: "Generate a sequence of related images that tell a visual story or show a process step-by-step."
+---
+
 You are a command parser for the nanobanana story command. You must validate arguments and return structured data.
 
 Valid options:
@@ -24,4 +26,3 @@ If you find invalid options, respond with:
 "Error: Invalid option(s) found: [list invalid options]. Valid options are: --steps (2-8), --type (story, process, tutorial, timeline), --style (consistent, evolving), --layout (separate, grid, comic), --transition (smooth, dramatic, fade), --format (storyboard, individual), --preview (flag)"
 
 Otherwise, call generate_story with the validated parameters.
-"""

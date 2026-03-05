@@ -1,5 +1,7 @@
-description = "Edit an existing image based on a text prompt."
-prompt = """
+---
+description: "Edit an existing image based on a text prompt."
+---
+
 You are a command parser for the nanobanana edit command. You must validate arguments and return structured data.
 
 Valid options:
@@ -24,4 +26,3 @@ If missing required parameters, respond with:
 "Error: Missing required parameters. Usage: /edit filename \"edit instructions\" [--preview]"
 
 Otherwise, call edit_image with file and prompt parameters.
-"""

@@ -1,0 +1,90 @@
+# Syncs mcp-server source, commands, and context files from upstream:
+# gemini-cli-extensions/nanobanana → pleaseai/nanobanana-plugin
+#
+# Runs daily at 09:00 UTC. Creates a PR when upstream version changes.
+# After merging the PR, push a tag (e.g. v1.0.12) to trigger release.yaml.
+
+name: Sync from Upstream
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/gemini-cli-extensions/nanobanana.git
+          git fetch upstream main
+
+      - name: Detect version change
+        id: version
+        run: |
+          UPSTREAM=$(git show upstream/main:gemini-extension.json | jq -r '.version')
+          CURRENT=$(jq -r '.version' gemini-extension.json)
+          echo "upstream=$UPSTREAM" >> $GITHUB_OUTPUT
+          echo "current=$CURRENT"   >> $GITHUB_OUTPUT
+          if [ "$UPSTREAM" != "$CURRENT" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.version.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync files from upstream
+        if: steps.version.outputs.changed == 'true'
+        run: |
+          git checkout upstream/main -- mcp-server/src/
+          git checkout upstream/main -- mcp-server/tsconfig.json
+          git checkout upstream/main -- commands/
+          git checkout upstream/main -- GEMINI.md
+          git checkout upstream/main -- gemini-extension.json
+          git checkout upstream/main -- CHANGELOG.md
+
+          # Update version in our package.json while preserving name/bin/files
+          UPSTREAM_VER=${{ steps.version.outputs.upstream }}
+          jq --arg v "$UPSTREAM_VER" '.version = $v' mcp-server/package.json > /tmp/pkg.json
+          mv /tmp/pkg.json mcp-server/package.json
+
+      - name: Convert commands TOML → Markdown
+        if: steps.version.outputs.changed == 'true'
+        run: node scripts/convert-commands.mjs
+
+      - name: Create Pull Request
+        if: steps.version.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: sync/upstream-v${{ steps.version.outputs.upstream }}
+          commit-message: "chore(sync): sync from upstream v${{ steps.version.outputs.upstream }}"
+          title: "chore(sync): sync from upstream v${{ steps.version.outputs.upstream }}"
+          body: |
+            Automated sync from [gemini-cli-extensions/nanobanana](https://github.com/gemini-cli-extensions/nanobanana)
+
+            | | Version |
+            |---|---|
+            | Upstream | `v${{ steps.version.outputs.upstream }}` |
+            | Current  | `v${{ steps.version.outputs.current }}` |
+
+            ## After merging
+            Push a tag to trigger npm publish:
+            ```bash
+            git tag v${{ steps.version.outputs.upstream }}
+            git push origin v${{ steps.version.outputs.upstream }}
+            ```
+          labels: sync,automated
