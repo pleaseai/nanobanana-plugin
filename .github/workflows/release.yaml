@@ -47,24 +47,15 @@ jobs:
       - name: Run build
         run: npm run build
 
-      # 6. Update extension version from tag
-      # This step extracts the version from the Git tag (e.g., v1.0.7 -> 1.0.7)
-      # and updates the gemini-extension.json file with the new version.
       - name: Update extension version
         run: |
           VERSION=$(echo ${{ github.ref_name }} | sed 's/v//')
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" gemini-extension.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" mcp-server/package.json
 
-      # 7. Create TAR archive with MCP server dependencies
-      # Exclude root node_modules but INCLUDE mcp-server/node_modules
       - name: Create TAR archive
         run: tar -cvzf ../nanobanana-release.tar.gz --exclude='.git' --exclude='.github' --exclude='./node_modules' . && mv ../nanobanana-release.tar.gz .
-  
-      # 8. Creates the GitHub Release
-      # This step uses the 'gh' CLI (pre-installed on the runner) to:
-      #   - Create a new release based on the tag you pushed.
-      #   - Automatically generate release notes from your commits.
-      #   - Upload the 'nanobanana-release.tar.gz' file as a release asset.
+
       - name: Create GitHub Release and Upload Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -74,3 +65,8 @@ jobs:
              --title "Release ${{ github.ref_name }}" \
              --notes "See the changelog for details." \
              nanobanana-release.tar.gz
+
+      - name: Publish to npm
+        run: cd mcp-server && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

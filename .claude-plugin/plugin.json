@@ -1,0 +1,26 @@
+{
+  "name": "nanobanana",
+  "version": "1.0.11",
+  "description": "Claude Code Plugin for Nano Banana (Gemini 2.5 Flash Image) model - generate and manipulate images with text prompts",
+  "author": {
+    "name": "Google",
+    "url": "https://github.com/gemini-cli-extensions"
+  },
+  "homepage": "https://github.com/pleaseai/nanobanana-plugin",
+  "repository": "https://github.com/pleaseai/nanobanana-plugin",
+  "license": "Apache-2.0",
+  "keywords": ["image-generation", "gemini", "ai", "nanobanana"],
+  "mcpServers": {
+    "nanobanana": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pleaseai/nanobanana-mcp-server"
+      ],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY:-}"
+      }
+    }
+  },
+  "commands": ["./commands"]
+}
