@@ -25,12 +25,12 @@ jobs:
       - name: Add upstream remote
         run: |
           git remote add upstream https://github.com/gemini-cli-extensions/nanobanana.git
-          git fetch upstream main
+          git fetch upstream main:refs/remotes/upstream/main
 
       - name: Detect version change
         id: version
         run: |
-          UPSTREAM=$(git show upstream/main:gemini-extension.json | jq -r '.version')
+          UPSTREAM=$(git show refs/remotes/upstream/main:gemini-extension.json | jq -r '.version')
           CURRENT=$(jq -r '.version' gemini-extension.json)
           echo "upstream=$UPSTREAM" >> $GITHUB_OUTPUT
           echo "current=$CURRENT"   >> $GITHUB_OUTPUT
@@ -49,15 +49,16 @@ jobs:
       - name: Sync files from upstream
         if: steps.version.outputs.changed == 'true'
         run: |
-          git checkout upstream/main -- mcp-server/src/
-          git checkout upstream/main -- mcp-server/tsconfig.json
-          git checkout upstream/main -- commands/
-          git checkout upstream/main -- GEMINI.md
-          git checkout upstream/main -- gemini-extension.json
-          git checkout upstream/main -- CHANGELOG.md
+          REF=refs/remotes/upstream/main
+          git checkout $REF -- mcp-server/src/
+          git checkout $REF -- mcp-server/tsconfig.json
+          git checkout $REF -- commands/
+          git checkout $REF -- GEMINI.md
+          git checkout $REF -- gemini-extension.json
+          git checkout $REF -- CHANGELOG.md
 
           # Update version in our package.json while preserving name/bin/files
-          UPSTREAM_VER=${{ steps.version.outputs.upstream }}
+          UPSTREAM_VER=$(jq -r '.version' gemini-extension.json)
           jq --arg v "$UPSTREAM_VER" '.version = $v' mcp-server/package.json > /tmp/pkg.json
           mv /tmp/pkg.json mcp-server/package.json
 
