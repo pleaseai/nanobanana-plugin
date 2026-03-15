@@ -1,6 +1,6 @@
 {
   "name": "nanobanana",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Gemini CLI extension for Nano Banana models - generate and manipulate images with text prompts",
   "mcpServers": {
     "nanobanana": {
@@ -9,5 +9,13 @@
       "env": {}
     }
   },
-  "contextFileName": "GEMINI.md"
+  "contextFileName": "GEMINI.md",
+  "settings": [
+    {
+      "name": "API Key",
+      "description": "Your Gemini API key. Get one from https://aistudio.google.com/apikey.",
+      "envVar": "NANOBANANA_API_KEY",
+      "sensitive": true
+    }
+  ]
 }
