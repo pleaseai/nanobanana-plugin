@@ -3,9 +3,9 @@
 >
 > You can still use the Pro model by setting the `NANOBANANA_MODEL` environment variable to `gemini-3-pro-image-preview`.
 
-# Nano Banana - Gemini CLI Extension
+# Nano Banana - Claude Code Plugin
 
-A professional Gemini CLI extension for generating and manipulating images using the Nano Banana models.
+A professional Claude Code plugin for generating and manipulating images using the Nano Banana models.
 
 ## ✨ Features
 
@@ -16,17 +16,15 @@ A professional Gemini CLI extension for generating and manipulating images using
 
 ## 📋 Prerequisites
 
-1. **Gemini CLI** installed and configured
+1. **Claude Code** installed and configured
 2. **Node.js 20+** and npm
 3. **API Key**: Set one of these environment variables:
-   - `NANOBANANA_GEMINI_API_KEY` (recommended for Gemini API key users who
-     normally authenticate to Gemini CLI using the "Login with Google" option)
-   - `NANOBANANA_GOOGLE_API_KEY` (recommended for Vertex API key users who
-     normally authenticate to Gemini CLI using the "Login with Google" option)
+   - `NANOBANANA_GEMINI_API_KEY` (recommended for Gemini API key users)
+   - `NANOBANANA_GOOGLE_API_KEY` (recommended for Vertex API key users)
    - `GEMINI_API_KEY` (fallback)
    - `GOOGLE_API_KEY` (fallback)
 
-For authentication setup, see the [official Gemini CLI documentation](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/authentication.md).
+For authentication setup, see the [Gemini API documentation](https://ai.google.dev/gemini-api/docs/api-key).
 
 ### Key Components
 
@@ -55,17 +53,18 @@ export NANOBANANA_MODEL=gemini-2.5-flash-image
 
 ## 🚀 Installation
 
-### 1. Install Extension
+### 1. Install Plugin
 
-Install the extension using the `gemini extensions install` command:
+Add the [PleaseAI marketplace](https://plugins.pleaseai.dev/) and install the plugin:
 
 ```bash
-gemini extensions install https://github.com/gemini-cli-extensions/nanobanana
+/plugin marketplace add pleaseai/claude-code-plugins
+/plugin install nanobanana@pleaseai
 ```
 
 ### 2. Activate
 
-Restart the Gemini CLI. The following commands will be available:
+Restart Claude Code. The following commands will be available:
 
 - `/generate` - Single or multiple image generation with style/variation options
 - `/edit` - Image editing
@@ -78,7 +77,7 @@ Restart the Gemini CLI. The following commands will be available:
 
 ## 💡 Usage
 
-The extension provides multiple command options for different use cases:
+The plugin provides multiple command options for different use cases:
 
 ### 🎯 Specific Commands (Recommended)
 
@@ -376,7 +375,7 @@ If a file already exists, a counter is automatically added:
 
 ### File Search Locations
 
-For editing/restoration, the extension searches for input images in:
+For editing/restoration, the plugin searches for input images in:
 
 1. Current working directory
 2. `./images/` subdirectory
@@ -421,7 +420,7 @@ cd mcp-server && npm run dev
 
 ### MCP Server Protocol
 
-The extension uses the official Model Context Protocol (MCP) SDK for robust client-server communication:
+The plugin uses the official Model Context Protocol (MCP) SDK for robust client-server communication:
 
 - **Protocol**: JSON-RPC over stdio
 - **SDK**: `@modelcontextprotocol/sdk`
@@ -443,7 +442,7 @@ The extension uses the official Model Context Protocol (MCP) SDK for robust clie
 
 ### Common Issues
 
-1. **"Command not recognized"**: Ensure extension is in `~/.gemini/extensions/nanobanana-extension/` and Gemini CLI is restarted
+1. **"Command not recognized"**: Ensure the plugin is properly installed and Claude Code is restarted
 
 2. **"No API key found"**: Set `GEMINI_API_KEY` environment variable:
 
@@ -461,7 +460,7 @@ The extension uses the official Model Context Protocol (MCP) SDK for robust clie
 
 ### Debug Mode
 
-The MCP server includes detailed debug logging that appears in the Gemini CLI console to help diagnose issues.
+The MCP server includes detailed debug logging that appears in the Claude Code console to help diagnose issues.
 
 ## 📄 Legal
 
@@ -474,5 +473,5 @@ The MCP server includes detailed debug logging that appears in the Gemini CLI co
 2. Create a feature branch
 3. Make your changes in the modular architecture
 4. Run `npm run build` to ensure compilation
-5. Test with the Gemini CLI
+5. Test with the Claude Code
 6. Submit a pull request
